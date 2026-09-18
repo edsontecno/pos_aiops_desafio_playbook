@@ -1,9 +1,8 @@
 # Parâmetros
 
-| Parâmetro          | Descrição                                                                                                                          |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `plano_anterior`   | Saída completa do elo 2 (prompt-plano), incluindo a seção "Fase 1 (destaque para o elo 3)". Cole em `{{plano_anterior}}`.         |
-| `estado_forge`     | Estado atual do Forge (referência de contexto). Cole em `{{estado_forge}}`.                                                        |
+| Parâmetro        | Descrição                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- | --- |
+| `plano_anterior` | Saída completa do elo 2 (prompt-plano), incluindo a seção "Fase 1 (destaque para o elo 3)". Cole em `{{plano_anterior}}`. |     |
 
 ---
 

@@ -1,8 +1,8 @@
 # Parâmetros
 
-| Parâmetro    | Descrição                                                                                                                                                                                                 |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `artefatos`  | Pacote completo de diagnóstico do Cerebro: configuração do cluster Elasticsearch, métricas temporais e trecho de logs correlacionados. Cole o bloco inteiro no lugar de `{{artefatos}}`. |
+| Parâmetro   | Descrição                                                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artefatos` | Pacote completo de diagnóstico do Cerebro: configuração do cluster Elasticsearch, métricas temporais e trecho de logs correlacionados. Cole o bloco inteiro no lugar de `{{artefatos}}`. |
 
 ---
 
@@ -68,4 +68,9 @@ Liste sintomas como **consequências** da causa-raiz, não como causas independe
 
 O que os artefatos **não** permitem concluir com segurança:
 
+## Restrições
+
+- Não reproduza os artefatos inteiros na resposta.
+- Não trate queda de cache hit ou timeouts isolados como causa-raiz sem encadeamento causal.
+- Responda em português, tom direto de plantão.
 - ...

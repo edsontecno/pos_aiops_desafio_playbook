@@ -1,7 +1,7 @@
 # Parâmetros
 
-| Parâmetro | Descrição |
-|-----------|-----------|
+| Parâmetro          | Descrição                                                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `snapshot_cluster` | Saída combinada já coletada de `kubectl get pods`, `kubectl describe pod` e `kubectl logs` do namespace do Sentinel. Cole o texto completo no lugar de `{{snapshot_cluster}}`. |
 
 ---
@@ -31,7 +31,10 @@ Responda em português, com as seções abaixo nesta ordem. Não devolva dump cr
 
 ### Resumo executivo
 
-Parágrafo curto (2–4 frases) com visão geral do namespace: quantos pods problemáticos (ou ausência deles), severidade percebida e prioridade sugerida para o plantão.
+- **Namespace:** {{namespace}}
+- **Status geral:** [SAUDÁVEL | ATENÇÃO | CRÍTICO]
+- **Pods problemáticos:** [N]
+- **Veredito:** [frase objetiva]
 
 ### Pods problemáticos
 

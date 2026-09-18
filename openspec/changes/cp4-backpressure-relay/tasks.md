@@ -9,4 +9,4 @@
 
 ## 3. Finalização
 
-- [ ] 3.1 Commit `feat(prompts): adiciona template CP04 backpressure relay`
+- [x] 3.1 Commit `feat(prompts): adiciona template CP04 backpressure relay`

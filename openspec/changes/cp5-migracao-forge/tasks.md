@@ -12,4 +12,4 @@
 
 ## 3. Finalização
 
-- [ ] 3.1 Commit `feat(prompts): adiciona template CP05 migracao forge`
+- [x] 3.1 Commit `feat(prompts): adiciona template CP05 migracao forge`

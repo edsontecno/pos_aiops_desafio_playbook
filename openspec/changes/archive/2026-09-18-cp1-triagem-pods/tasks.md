@@ -5,10 +5,10 @@
 
 ## 2. Template de entrega e publicação
 
-- [x] 2.1 Criar `prompts/cp01-triagem-de-pods/entrega.md` com seções vazias: Modelo, Execução (Entradas 1–3), Curadoria — sem outputs preenchidos
+- [x] 2.1 Criar `prompts/cp01-triagem-de-pods/entrega.md` com snapshots das Entradas 1–3 de `checkpoints-plataforma.md` já colados; Modelo/Output/Curadoria manual
 - [x] 2.2 Verificar que `registry/devops/` permanece sem prompts do playbook e que nenhum `.env`/secret de API foi adicionado
 
 ## 3. Finalização
 
 - [x] 3.1 Revisar checklist: apenas templates presentes, nenhuma execução automatizada no repositório
-- [ ] 3.2 Commit semântico `feat(prompts): adiciona template CP01 triagem de pods`
+- [x] 3.2 Commit semântico `feat(prompts): adiciona template CP01 triagem de pods`

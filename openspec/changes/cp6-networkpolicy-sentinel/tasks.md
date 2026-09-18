@@ -11,4 +11,4 @@
 
 ## 3. Finalização
 
-- [ ] 3.1 Commit `feat(prompts): adiciona template CP06 networkpolicy sentinel`
+- [x] 3.1 Commit `feat(prompts): adiciona template CP06 networkpolicy sentinel`

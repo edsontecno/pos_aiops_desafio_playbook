@@ -1,9 +1,9 @@
 # Parâmetros
 
-| Parâmetro               | Descrição                                                                                                                          |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `estado_forge`          | Estado atual do Forge (mesmo bloco do elo 1). Cole em `{{estado_forge}}`.                                                        |
-| `diagnostico_anterior`  | Saída completa do elo 1 (prompt-diagnostico). Cole em `{{diagnostico_anterior}}`.                                                  |
+| Parâmetro              | Descrição                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `.                     |
+| `diagnostico_anterior` | Saída completa do elo 1 (prompt-diagnostico). Cole em `{{diagnostico_anterior}}`. |
 
 ---
 
@@ -11,18 +11,14 @@ Você é um engenheiro de dados sênior na Aegis, especializado em migrações i
 
 Analise **apenas** o estado do Forge e o diagnóstico do elo anterior. Não solicite novos dados, não invente componentes ou fases não sustentadas pelas entradas.
 
-**Este é o elo 2 de uma cadeia de 3 prompts.** A saída será usada como entrada do elo 3 (`{{plano_anterior}}`).
-
-## Estado atual do Forge
-
-```
-{{estado_forge}}
 ```
 
 ## Diagnóstico anterior (elo 1)
 
 ```
+
 {{diagnostico_anterior}}
+
 ```
 
 ## Regras de análise
@@ -49,6 +45,7 @@ Responda em português, com as seções abaixo nesta ordem.
 Para **cada** fase, use este bloco (mínimo 3 fases):
 
 ```
+
 #### Fase N — <nome>
 
 - **Objetivo:** ...
@@ -58,12 +55,15 @@ Para **cada** fase, use este bloco (mínimo 3 fases):
 - **Rollback:** ...
 - **Duração estimada:** ...
 - **Riscos:** ...
+
 ```
 
 ### Ordem de execução e dependências entre fases
 
 ```
+
 Fase 1 → Fase 2 → ... (justifique a ordem)
+
 ```
 
 ### Fase 1 (destaque para o elo 3)
@@ -86,3 +86,4 @@ Resuma em 3–5 bullets o que o elo 3 deve detalhar:
 - Não proponha big-bang ou janela única de corte.
 - Não reproduza as entradas inteiras na resposta.
 - Responda em português, tom de plano de migração.
+```
