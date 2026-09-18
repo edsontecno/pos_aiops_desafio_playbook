@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CP08 — nota-de-triagem (3 alertas CP02)
+
+prompts:
+  - file://devops/nota-de-triagem/prompt.md
+
+providers:
+  - openai:gpt-4o-mini
+  - anthropic:claude-3-5-haiku-20241022
+
+defaultTest:
+  assert:
+    - type: contains
+      value: 'ALERTA:'
+    - type: contains
+      value: 'IMPACTO:'
+    - type: contains
+      value: 'HIPÓTESE INICIAL:'
+    - type: contains
+      value: 'AÇÃO IMEDIATA:'
+    - type: contains
+      value: 'ESCALAR PARA:'
+    - type: regex
+      value: 'ESCALAR PARA:.*@\w+'
+    - type: javascript
+      value: output.trim().split('\n').filter((line) => line.trim()).length <= 8
+    - type: latency
+      threshold: 5000
+    - type: cost
+      threshold: 0.01
+
+tests:
+  - description: CP02 Entrada 1 — Sentinel autoscaler no limite
+    vars:
+      alerta_cru: |
+        2026-05-12 14:02:09 UTC [Sentinel] autoscaler hit max replicas (60/60) on sentinel-api,
+        queue depth on Relay growing 2k/min, CPU avg 88%, tenant stark-industries
+        sending 4x baseline volume after onboarding new region
+
+  - description: CP02 Entrada 2 — Relay taxa de rejeição elevada
+    vars:
+      alerta_cru: |
+        2026-05-13 03:11:00 UTC [Relay] ingest reject rate 6% for 8min, tenant wakanda-systems,
+        buffer saturated after deploy 02:55
+
+  - description: CP02 Entrada 3 — Forge consumer lag crescente
+    vars:
+      alerta_cru: |
+        2026-05-13 11:40:22 UTC [Forge] consumer lag 9min and climbing, batch forge-batch-ingest
+        delayed after previous job failure, downstream Sentinel starting to lag

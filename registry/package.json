@@ -1,0 +1,13 @@
+{
+  "name": "aegis-prompt-registry",
+  "private": true,
+  "scripts": {
+    "eval": "bash scripts/run-all-evals.sh",
+    "eval:nota": "promptfoo eval -c devops/nota-de-triagem/promptfooconfig.yaml",
+    "eval:triagem": "promptfoo eval -c devops/triagem-de-pods/promptfooconfig.yaml",
+    "eval:networkpolicy": "promptfoo eval -c devops/networkpolicy-sentinel/promptfooconfig.yaml"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.123.1"
+  }
+}
