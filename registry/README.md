@@ -28,7 +28,15 @@ _Nenhum prompt cadastrado ainda._
 
 Pipelines de CI/CD, containers, orquestração, infraestrutura como código, observabilidade, SRE e segurança operacional.
 
-_Nenhum prompt cadastrado ainda._
+- [triagem-de-pods](./devops/triagem-de-pods/) — Analisa snapshot kubectl e identifica pods problemáticos no namespace Sentinel
+- [nota-de-triagem](./devops/nota-de-triagem/) — Converte alerta cru em nota padronizada de handoff entre plantonistas
+- [causa-raiz-cerebro](./devops/causa-raiz-cerebro/) — Diagnostica degradação no Elasticsearch correlacionando config, métricas e logs
+- [backpressure-relay](./devops/backpressure-relay/) — Compara estratégias de backpressure no Relay respeitando SLAs e zero perda
+- [migracao-forge-diagnostico](./devops/migracao-forge-diagnostico/) — Diagnostica estado batch atual do Forge e riscos antes da migração event-driven
+- [migracao-forge-plano](./devops/migracao-forge-plano/) — Elabora plano incremental batch→event-driven com fases reversíveis
+- [migracao-forge-fase-1](./devops/migracao-forge-fase-1/) — Detalha runbook executável da primeira fase da migração batch→event-driven
+- [networkpolicy-sentinel](./devops/networkpolicy-sentinel/) — Gera NetworkPolicy endurecida default-deny para sentinel-prod
+- [networkpolicy-sentinel-verificacao](./devops/networkpolicy-sentinel-verificacao/) — Revisa NetworkPolicy candidata com checklist de segurança Kubernetes
 
 ### [Produtividade](./produtividade/)
 
