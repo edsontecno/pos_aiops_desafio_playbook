@@ -5,7 +5,7 @@ versao: 1.0.0
 tags: [kubernetes, sre, triagem, sentinel, plantao]
 inputs:
   - nome: namespace
-    descricao: Namespace Kubernetes analisado (ex.: sentinel-prod)
+    descricao: Namespace Kubernetes analisado (ex. sentinel-prod)
   - nome: snapshot_cluster
     descricao: Saída combinada de kubectl get/describe/logs do namespace Sentinel
 ---
@@ -26,9 +26,9 @@ Substitua os placeholders e cole o prompt em um modelo de linguagem.
 
 **Variáveis:**
 
-| Placeholder | Valor de exemplo |
-| ----------- | ---------------- |
-| `{{namespace}}` | `sentinel-prod` |
+| Placeholder            | Valor de exemplo                                                                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `{{namespace}}`        | `sentinel-prod`                                                                                                                                                  |
 | `{{snapshot_cluster}}` | Saída combinada de `kubectl get pods`, `describe pod` e `logs --previous` (cenário CrashLoopBackOff/OOM em `prompts/cp01-triagem-de-pods/entrega.md`, Entrada 1) |
 
 **Trecho de entrada (snapshot resumido):**

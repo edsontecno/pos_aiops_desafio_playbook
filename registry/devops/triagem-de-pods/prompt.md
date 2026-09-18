@@ -5,7 +5,7 @@ versao: 1.0.0
 tags: [kubernetes, sre, triagem, sentinel, plantao]
 inputs:
   - nome: namespace
-    descricao: Namespace Kubernetes analisado (ex.: sentinel-prod)
+    descricao: Namespace Kubernetes analisado (ex. sentinel-prod)
   - nome: snapshot_cluster
     descricao: Saída combinada de kubectl get/describe/logs do namespace Sentinel
 ---
