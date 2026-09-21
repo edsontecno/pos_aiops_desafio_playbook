@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CP10 smoke — migracao-forge-plano (cadeia CP05 elo 2)
+
+prompts:
+  - file://prompt.md
+
+providers:
+  - openai:gpt-4o-mini
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: output.length > 100
+    - type: latency
+      threshold: 20000
+    - type: cost
+      threshold: 0.01
+
+tests:
+  - description: CP05 elo 2 — estado Forge + diagnóstico anterior
+    vars:
+      estado_forge: |
+        Forge hoje:
+        - ingestão: um job em cron acorda a cada 60min (o "forge-batch-ingest")
+        - transformação: 14 etapas de processamento encadeadas (em Spark), ~40min no total
+        - destino: grava em tabelas no data warehouse, particionadas por hora
+        - ponto frágil: se um lote falha, o próximo acumula o dobro de volume
+        - quem depende do Forge: Sentinel (lê as tabelas agregadas), Cerebro (indexa
+          os eventos transformados) e os relatórios de billing da Pepper (rodam de madrugada)
+      diagnostico_anterior: |
+        ### Resumo do estado atual
+        - Modo de operação: batch (cron 60min)
+        - Gargalo principal: 14 etapas Spark ~40min em janela de 60min
+        - Ponto frágil: falha de lote acumula dobro de volume no ciclo seguinte
+
+        ### Dependentes e impacto
+        | Dependente | O que consome | Sensibilidade |
+        | Sentinel | tabelas agregadas | não especificada |
+        | Cerebro | eventos transformados | não especificada |
+        | Billing | relatórios de madrugada | alta (janela fixa) |
+
+        ### Riscos identificados
+        - Margem de tempo insuficiente (40min/60min)
+        - Efeito cascata de falhas sem limite explícito
+        - Billing sensível a atrasos acumulados no dia anterior
+
+        ### Riscos antecipados na migração
+        - Mudança de contrato batch → event-driven para os três dependentes
+        - Billing depende de corte temporal fechado

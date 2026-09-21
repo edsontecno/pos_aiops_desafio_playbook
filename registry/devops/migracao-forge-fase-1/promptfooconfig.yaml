@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CP10 smoke — migracao-forge-fase-1 (cadeia CP05 elo 3)
+
+prompts:
+  - file://prompt.md
+
+providers:
+  - openai:gpt-4o-mini
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: output.length > 100
+    - type: latency
+      threshold: 20000
+    - type: cost
+      threshold: 0.01
+
+tests:
+  - description: CP05 elo 3 — plano anterior com destaque Fase 1
+    vars:
+      estado_forge: |
+        Forge hoje:
+        - ingestão: um job em cron acorda a cada 60min (o "forge-batch-ingest")
+        - transformação: 14 etapas de processamento encadeadas (em Spark), ~40min no total
+        - destino: grava em tabelas no data warehouse, particionadas por hora
+        - ponto frágil: se um lote falha, o próximo acumula o dobro de volume
+        - quem depende do Forge: Sentinel (lê as tabelas agregadas), Cerebro (indexa
+          os eventos transformados) e os relatórios de billing da Pepper (rodam de madrugada)
+      plano_anterior: |
+        ### Objetivo da migração
+        De batch (cron 60min) para event-driven (consumo contínuo do Relay), sem big-bang,
+        mantendo Sentinel, Cerebro e billing operacionais; cada fase reversível.
+
+        ### Fase 1 — Instrumentação e paralelismo observacional
+        - Objetivo: consumo shadow do Relay em paralelo ao batch, sem alterar produção
+        - Escopo: staging paralelo; batch continua fonte oficial
+        - Critério de sucesso: paridade shadow vs batch dentro de margem aceitável
+        - Rollback: desligar consumidor shadow; zero impacto em produção
+
+        ### Fase 1 (destaque para elo 3)
+        Detalhar: configuração shadow, métricas de comparação, destino isolado,
+        checklist das 14 etapas (compatível/incompatível), sinal de abort e desligamento.
+
+        ### Ordem de execução
+        Fase 1 → Fase 2 → Fase 3 → Fase 4

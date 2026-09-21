@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CP10 smoke — networkpolicy-sentinel-verificacao (policy candidata CP06)
+
+prompts:
+  - file://prompt.md
+
+providers:
+  - openai:gpt-4o-mini
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: output.length > 100
+    - type: latency
+      threshold: 20000
+    - type: cost
+      threshold: 0.01
+
+tests:
+  - description: CP06 — revisão de NetworkPolicy candidata v1
+    vars:
+      networkpolicy_candidata: |
+        # NetworkPolicy endurecida para sentinel-prod
+        # Substitui manifesto permissivo sentinel-allow
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: sentinel-strict
+          namespace: sentinel-prod
+        spec:
+          podSelector:
+            matchLabels:
+              app: sentinel
+          policyTypes:
+            - Ingress
+            - Egress
+          ingress:
+            # Libera tráfego de entrada do Relay (consumo de eventos)
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: relay-prod
+                  podSelector:
+                    matchLabels:
+                      app: relay
+            # Libera tráfego de entrada do gateway de API da plataforma
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: edge
+                  podSelector:
+                    matchLabels:
+                      app: api-gateway
+          egress:
+            # Libera tráfego de saída para o Forge (warehouse)
+            - to:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: forge-prod
+                  podSelector:
+                    matchLabels:
+                      app: forge
+              ports:
+                - protocol: TCP
+                  port: 5432
+            # Libera tráfego de saída para o Cerebro (busca)
+            - to:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: cerebro-prod
+                  podSelector:
+                    matchLabels:
+                      app: cerebro
+              ports:
+                - protocol: TCP
+                  port: 9200
+            # Libera tráfego de saída para o DNS interno
+            - to:
+                - namespaceSelector:
+                    matchLabels:
+                      kubernetes.io/metadata.name: kube-system
+                  podSelector:
+                    matchLabels:
+                      k8s-app: kube-dns
+              ports:
+                - protocol: TCP
+                  port: 53
+                - protocol: UDP
+                  port: 53

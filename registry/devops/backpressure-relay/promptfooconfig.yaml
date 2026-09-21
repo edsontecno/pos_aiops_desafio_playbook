@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: CP10 smoke — backpressure-relay (cenário CP04)
+
+prompts:
+  - file://prompt.md
+
+providers:
+  - openai:gpt-4o-mini
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: output.length > 100
+    - type: latency
+      threshold: 20000
+    - type: cost
+      threshold: 0.01
+
+tests:
+  - description: CP04 — pico Relay 320k msgs/s e restrições SLA
+    vars:
+      cenario: |
+        Relay (barramento de eventos):
+        - throughput sustentado: 180k msgs/s
+        - pico observado no incidente da semana passada: 320k msgs/s por 25min
+        - retenção atual: 4h
+        - consumidores: Forge (ingestão), Sentinel (alerting em tempo real)
+
+        Restrições do time:
+        - alerting do Sentinel não pode atrasar mais que 60s (SLA com cliente)
+        - ingestão do Forge pode atrasar até 15min sem violar SLA
+        - orçamento de infra do trimestre já está 8% acima do previsto
+        - Steve Rogers lembra que o barramento antigo perdia mensagens sob pico,
+          e perda de telemetry é inaceitável para um produto de observabilidade

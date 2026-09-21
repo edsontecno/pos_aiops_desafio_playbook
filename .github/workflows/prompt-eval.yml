@@ -1,0 +1,71 @@
+name: Prompt Eval
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  prompt-eval-gate:
+    name: Gate (determinístico + juiz)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: registry
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: registry/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run gate evals (attempt 1)
+        id: gate_attempt_1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run eval:gate
+        continue-on-error: true
+
+      - name: Run gate evals (retry)
+        if: steps.gate_attempt_1.outcome == 'failure'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run eval:gate
+
+  prompt-eval-smoke:
+    name: Smoke (prompts abertos, advisory)
+    runs-on: ubuntu-latest
+    needs: prompt-eval-gate
+    defaults:
+      run:
+        working-directory: registry
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: registry/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke evals (non-blocking)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run eval:smoke
+        continue-on-error: true

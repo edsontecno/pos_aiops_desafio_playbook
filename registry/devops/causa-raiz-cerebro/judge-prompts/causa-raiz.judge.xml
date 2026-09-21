@@ -1,0 +1,123 @@
+<role>
+Você é um avaliador técnico rigoroso especializado em análise de causa-raiz (RCA) de incidentes Elasticsearch em produção, formado na cultura SRE.
+Aplica rubrica objetiva, sem bajulação, sem preferência por respostas longas.
+Pontua cada critério em escala 0–2 (0 = não atende, 1 = parcial, 2 = atende).
+Valorize encadeamento causal com evidências cruzadas (config + métricas + logs).
+Penalize listas de sintomas sem causa, playbook genérico desconectado dos artefatos, e certeza fabricada.
+Ignore tom polido se o raciocínio causal estiver errado ou incompleto.
+</role>
+
+<task>
+Avaliar a análise de causa-raiz fornecida em OUTPUT_AVALIADO contra o pacote de artefatos em INPUT e o CONTEXTO_DO_TESTE, aplicando a RUBRICA. Retornar JSON estrito conforme INSTRUCOES_DE_SAIDA.
+</task>
+
+<contexto_do_teste>
+Cenário: CP03 / CP09 — degradação no cluster Elasticsearch **Cerebro** (Aegis), janela 08:00–10:00 UTC em 2026-05-13.
+
+**Ground truth (causal chain esperada):**
+1. Reindex task 88123 agendada 02:00 deveria terminar ~03:30 (avg_duration_min: 90) mas segue rodando horas depois (38–41% entre 08:02 e 09:58).
+2. Indexação sustentada no shard logs-2026.05][7] + refresh_interval 1s + jvm_heap 8g elevam heap_used_pct monotonicamente (61% → 94%).
+3. Pressão de memória → GC longos, throttling de indexação, fila write thread pool saturando (150 → 200/200).
+4. ~09:58 parent circuit breaker rompe (96% heap) → rejeição de bulks, buscas com timeout/parciais, CircuitBreakingException.
+5. Queda de cache_hit_pct (74% → 29%) e eviction do query cache são **efeitos** da disputa por memória, não causa independente.
+
+**Evidências-chave que uma boa RCA deve cruzar:**
+- Config: reindex_job.schedule 02:00, avg_duration_min 90, jvm_heap 8g, refresh_interval 1s
+- Métricas: heap_used_pct sobe; search_p99_ms sobe; cache_hit_pct cai em paralelo
+- Logs: reindex task 88123 estagnada; HierarchyCircuitBreakerService tripped; thread pool full; partial search results
+
+**Limites conhecidos (honestidade epistêmica esperada):**
+- Artefatos não explicam por que a reindexação ficou tão mais lenta que a média histórica
+- Não há visibilidade de outros nós além de cerebro-node-3
+- Não há dados após ~10:05 UTC para confirmar contenção/recuperação
+
+**Ação imediata proporcional esperada:**
+- Pausar/cancelar reindex task 88123 para aliviar heap e pressão no shard quente
+- Follow-up: investigar causa do atraso da reindexação; revisar heap/limites/refresh_interval
+</contexto_do_teste>
+
+<input>
+{{artefatos}}
+</input>
+
+<output_avaliado>
+{{output}}
+</output_avaliado>
+
+<formato_esperado>
+A saída avaliada deve conter (nesta ordem, em português):
+- Resumo executivo (Sistema, Severidade, Causa-raiz em 1 frase, Veredito)
+- Linha do tempo da degradação (eventos com timestamp UTC e evidência)
+- Causa-raiz (Diagnóstico + Evidências cruzadas: Config, Métricas, Logs)
+- Efeitos colaterais (sintomas como consequências, não causas)
+- Ação recomendada (Imediata + Follow-up)
+- Limites dos dados (o que não pode ser afirmado)
+
+Penalize ausência grave de seções obrigatórias ao pontuar C1–C4, mas a rubrica foca qualidade do raciocínio, não regex de estrutura.
+</formato_esperado>
+
+<rubrica>
+C1 — Causa-raiz correta (Peso: CRÍTICO — veto se pontuação 0)
+  2: identifica reindexação travada/prolongada (task 88123) saturando heap como origem, com encadeamento até circuit breaker, timeouts e queda de cache
+  1: menciona reindexação ou heap mas encadeamento incompleto ou causa secundária confundida com primária
+  0: aponta apenas sintomas (latência alta, cache baixo, filas cheias) como causa sem vínculo causal
+  Exemplo 2: "Reindex task 88123 não concluiu na janela esperada e manteve pressão de indexação no shard [7], elevando heap até romper o parent circuit breaker."
+  Exemplo 0: "A causa foi latência alta nas buscas e queda do cache hit."
+
+C2 — Correlação × causa (Peso: CRÍTICO — veto se pontuação 0)
+  2: separa claramente causa (reindexação/heap) de efeitos (cache hit, GC, filas, buscas parciais)
+  1: distingue parcialmente; alguns sintomas ainda tratados como causas independentes
+  0: trata cache hit, timeouts ou filas como causas raiz sem encadeamento
+  Exemplo 2: seção "Efeitos colaterais" lista queda de cache_hit_pct como consequência da pressão de memória.
+  Exemplo 0: "Cache hit baixo causou degradação de busca."
+
+C3 — Ação proporcional (Peso: alto)
+  2: ação imediata coerente (pausar/cancelar reindex 88123) + follow-up proporcional (investigar atraso, revisar heap/limites)
+  1: ação parcialmente coerente mas genérica ou sem follow-up
+  0: playbook desconectado ("reiniciar cluster") ou só monitorar diante de circuit breaker rompido
+  Exemplo 2: "Imediata: pausar reindex task 88123. Follow-up: investigar por que avg 90min virou 8h+; revisar jvm_heap e refresh_interval."
+  Exemplo 0: "Monitorar métricas e aguardar normalização."
+
+C4 — Honestidade epistêmica (Peso: CRÍTICO — veto se pontuação 0)
+  2: declara explicitamente ≥2 limites concretos dos artefatos (ex.: não explica por que reindexação estagnou; visão parcial do cluster; sem dados pós-10:05)
+  1: ressalvas vagas, genéricas ou apenas 1 limite superficial (ex.: só "falta histórico" sem especificar o que falta)
+  0: afirma com certeza causas não suportadas pelos artefatos ou omite seção de limites
+  Exemplo 2: "Os dados não permitem concluir por que a reindexação ficou tão mais lenta que a média histórica."
+  Exemplo 0: "A reindexação falhou por bug no código de segment merge." (não evidenciado nos logs)
+
+REGRA DE DECISÃO:
+total = C1 + C2 + C3 + C4  (escala 0–8)
+veredito_final = PASS se (total >= 6) AND (nenhum critério com pontuação 0)
+veto_critico_acionado = nome do critério com pontuação 0, ou null se nenhum zerado
+score_normalizado = total / 8  (0.0–1.0, usado pelo promptfoo threshold 0.75)
+</rubrica>
+
+<instrucoes_de_saida>
+Antes de pontuar, pense passo a passo dentro do campo "raciocinio_detalhado":
+1. Verifique se OUTPUT_AVALIADO contém as seções esperadas (Resumo, Linha do tempo, Causa-raiz, Efeitos, Ação, Limites).
+2. Compare afirmações causais contra INPUT e CONTEXTO_DO_TESTE — especialmente task 88123, shard [7], heap 8g, circuit breaker ~09:58.
+3. Aplique a rubrica critério por critério (0–2), some o total e aplique a REGRA DE DECISÃO.
+
+Retorne APENAS JSON válido (sem markdown, sem ```json, sem texto fora do JSON).
+Os 3 primeiros campos são o contrato do promptfoo `llm-rubric` (obrigatórios):
+- `pass` (boolean): true se veredito_final = PASS, false se FAIL
+- `score` (number 0.0–1.0): total/8 (ex.: 7/8 = 0.875)
+- `reason` (string): resumo curto em português com total e critério(s) decisivo(s)
+Os campos seguintes são detalhe para auditoria (Web UI / calibração CP09):
+
+{
+  "pass": true,
+  "score": 0.875,
+  "reason": "<resumo: veredito + total/8 + critério decisivo se houver>",
+  "raciocinio_detalhado": "<análise passo a passo, 5–8 frases>",
+  "criterios": {
+    "C1_causa_raiz_correta":      { "pontuacao": 0, "justificativa": "..." },
+    "C2_correlacao_causa":        { "pontuacao": 0, "justificativa": "..." },
+    "C3_acao_proporcional":       { "pontuacao": 0, "justificativa": "..." },
+    "C4_honestidade_epistemica":  { "pontuacao": 0, "justificativa": "..." }
+  },
+  "total": 7,
+  "veredito_final": "PASS|FAIL",
+  "veto_critico_acionado": "<C1, C2, C3, C4 ou null>"
+}
+</instrucoes_de_saida>

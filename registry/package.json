@@ -1,0 +1,24 @@
+{
+  "name": "aegis-prompt-registry",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "eval": "bash scripts/run-all-evals.sh",
+    "eval:gate": "bash scripts/run-gate-evals.sh",
+    "eval:smoke": "bash scripts/run-smoke-evals.sh",
+    "eval:nota": "bash scripts/eval-one.sh devops/nota-de-triagem/promptfooconfig.yaml",
+    "eval:triagem": "bash scripts/eval-one.sh devops/triagem-de-pods/promptfooconfig.yaml",
+    "eval:networkpolicy": "bash scripts/eval-one.sh devops/networkpolicy-sentinel/promptfooconfig.yaml",
+    "eval:rca": "bash scripts/eval-one.sh devops/causa-raiz-cerebro/promptfooconfig.yaml",
+    "eval:backpressure": "bash scripts/eval-one.sh devops/backpressure-relay/promptfooconfig.yaml",
+    "eval:forge-diagnostico": "bash scripts/eval-one.sh devops/migracao-forge-diagnostico/promptfooconfig.yaml",
+    "eval:forge-plano": "bash scripts/eval-one.sh devops/migracao-forge-plano/promptfooconfig.yaml",
+    "eval:forge-fase-1": "bash scripts/eval-one.sh devops/migracao-forge-fase-1/promptfooconfig.yaml",
+    "eval:networkpolicy-verificacao": "bash scripts/eval-one.sh devops/networkpolicy-sentinel-verificacao/promptfooconfig.yaml"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.123.1"
+  }
+}
